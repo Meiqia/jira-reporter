@@ -15,17 +15,19 @@ Usage:
 $ jira-reporter -h
 jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]
   -baseURL string
-    	base URL of Jira server
+        base URL of Jira server
   -config string
-    	config file in YAML (default "~/.jira-reporter/config.yaml")
+        config file in YAML (default "~/.jira-reporter/config.yaml")
   -issueType string
-    	Jira issue type (comma-separated)
+        Jira issue type (comma-separated)
   -project string
-    	Jira project (comma-separated)
+        Jira project (comma-separated)
+  -updatedBetween string
+        date range between which issues have been updated, e.g. "2021-10-01~2021-10-10" (precedes updatedSince)
   -updatedSince string
-    	date range in which issues have been updated
+        date after which issues have been updated, e.g. "-7d"
   -username string
-    	Jira username
+        Jira username
 ```
 
 
@@ -43,6 +45,12 @@ $ jira-reporter Peter
 
 ```bash
 $ jira-reporter -updatedSince=-2d Peter
+```
+
+### Peter's report between 2021-10-01 and 2021-10-10
+
+```bash
+$ jira-reporter -updatedBetween=2021-10-01~2021-10-10 Peter
 ```
 
 ### Input password in the prompt

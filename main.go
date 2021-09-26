@@ -43,7 +43,7 @@ func main() {
 	flag.StringVar(&flags.Project, "project", "", "Jira project (comma-separated)")
 	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type (comma-separated)")
 	flag.StringVar(&flags.UpdatedSince, "updatedSince", "", `date after which issues have been updated, e.g. "-7d"`)
-	flag.StringVar(&flags.UpdatedBetween, "updatedBetween", "", "date range between which issues have been updated, e.g. \"2021-10-01~2021-10-10\" (precedes `updatedSince`)")
+	flag.StringVar(&flags.UpdatedBetween, "updatedBetween", "", "date range between which issues have been updated, e.g. \"2021-10-01~2021-10-10\" (precedes updatedSince)")
 
 	flag.Usage = func() {
 		fmt.Println(`jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]`)
