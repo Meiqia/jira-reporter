@@ -1,6 +1,6 @@
 module github.com/Meiqia/jira-reporter
 
-go 1.16
+go 1.14
 
 require (
 	github.com/abiosoft/ishell/v2 v2.0.2

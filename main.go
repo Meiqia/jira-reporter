@@ -7,6 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/abiosoft/ishell/v2"
@@ -16,6 +18,10 @@ import (
 
 const (
 	defaultConfigFile = "~/.jira-reporter/config.yaml"
+)
+
+var (
+	reRecentDays = regexp.MustCompile(`^-(\d+)d$`)
 )
 
 type Options struct {
@@ -83,7 +89,7 @@ func run(flags userFlags) error {
 	}
 
 	report := reporter.GenReport(issues)
-	markdown, err := report.Markdown()
+	markdown, err := report.Markdown(getRecentDays(flags.Options.UpdatedSince))
 	if err != nil {
 		panic(err)
 	}
@@ -174,4 +180,19 @@ func completeUsernameAndPassword(opts *Options) (err error) {
 	}
 
 	return nil
+}
+
+func getRecentDays(updatedSince string) int {
+	r := reRecentDays.FindStringSubmatch(updatedSince)
+	if len(r) != 2 {
+		panic(fmt.Errorf("invalid updatedSince: %q", updatedSince))
+	}
+	num := r[1]
+
+	recentDays, err := strconv.Atoi(num)
+	if err != nil {
+		panic(err)
+	}
+
+	return recentDays
 }
