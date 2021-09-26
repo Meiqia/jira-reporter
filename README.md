@@ -29,21 +29,25 @@ jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]
 
 ## Example Usage
 
-### Using Config
+### Peter's report for the last 7 days
 
-Copy [config.yaml](config.yaml) into `~/.jira-exporter`, and fill in your Jira username and password.
+Copy [config.yaml](config.yaml) into `~/.jira-exporter` and fill in your Jira username and password, then execute:
 
 ```bash
-$ jira-exporter <同事1>,<同事2>,...
+$ jira-exporter Peter
 ```
 
-### Using Flags
+### Peter's report for the last 2 days
 
 ```bash
-$ jira-exporter \
--baseURL=https://jira.meiqia.com -username=<YOUR-JIRA-USERNAME> \
--project="基础架构, LiveChat, 呼叫, 茶馆" \
--issueType="任务, 改进, 故事, 子任务, 故障, Bug" \
--lastUpdated="-7d" \
-<同事1>,<同事2>,...
+$ jira-exporter -lastUpdated=-2d Peter
+```
+
+### Input password in the prompt
+
+Leave `password` empty in `~/.jira-exporter/config.yaml`, then execute:
+
+```bash
+$ jira-exporter Peter
+Password: 
 ```
