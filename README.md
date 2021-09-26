@@ -2,30 +2,32 @@
 
 A simple tool to generate report from Jira for our team.
 
+
 ## Installation
 
 ```bash
 $ go get -u github.com/Meiqia/jira-exporter
 ```
 
-Help:
+Usage:
 
 ```bash
 $ jira-exporter -h
 jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]
+  -baseURL string
+    	base URL of Jira server
   -config string
-        config file in YAML (default "~/.jira-reporter/config.yaml")
-  -host string
-        base URL of Jira server
+    	config file in YAML (default "~/.jira-reporter/config.yaml")
   -issueType string
-        Jira issue type
+    	Jira issue type (comma-separated)
   -lastUpdated string
-        last updated
+    	how many days have passed since the last update
   -project string
-        Jira project
-  -user string
-        Jira username
+    	Jira project (comma-separated)
+  -username string
+    	Jira username
 ```
+
 
 ## Example Usage
 

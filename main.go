@@ -39,9 +39,9 @@ func main() {
 	flag.StringVar(&flags.ConfigFile, "config", defaultConfigFile, "config file in YAML")
 	flag.StringVar(&flags.BaseURL, "baseURL", "", "base URL of Jira server")
 	flag.StringVar(&flags.Username, "username", "", "Jira username")
-	flag.StringVar(&flags.Project, "project", "", "Jira project")
-	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type")
-	flag.StringVar(&flags.LastUpdated, "lastUpdated", "", "last updated")
+	flag.StringVar(&flags.Project, "project", "", "Jira project (comma-separated)")
+	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type (comma-separated)")
+	flag.StringVar(&flags.LastUpdated, "lastUpdated", "", "how many days have passed since the last update")
 
 	flag.Usage = func() {
 		fmt.Println(`jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]`)
