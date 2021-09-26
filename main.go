@@ -83,7 +83,11 @@ func run(flags userFlags) error {
 	}
 
 	report := reporter.GenReport(issues)
-	fmt.Println(report.Markdown())
+	markdown, err := report.Markdown()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(markdown)
 
 	return nil
 }
