@@ -20,10 +20,10 @@ jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]
     	config file in YAML (default "~/.jira-reporter/config.yaml")
   -issueType string
     	Jira issue type (comma-separated)
-  -lastUpdated string
-    	how many days have passed since the last update
   -project string
     	Jira project (comma-separated)
+  -updatedSince string
+    	date range in which issues have been updated
   -username string
     	Jira username
 ```

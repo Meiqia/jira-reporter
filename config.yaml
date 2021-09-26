@@ -3,4 +3,4 @@ username: <YOUR-JIRA-USERNAME>
 password: <YOUR-JIRA-PASSWORD>
 project: 基础架构, LiveChat, 呼叫, 茶馆
 issueType: 任务, 改进, 故事, 子任务, 故障, Bug
-lastUpdated: -7d
+updatedSince: -7d

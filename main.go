@@ -19,13 +19,13 @@ const (
 )
 
 type Options struct {
-	ConfigFile  string `yaml:"-"`
-	BaseURL     string `yaml:"baseURL"`
-	Username    string `yaml:"username"`
-	Password    string `yaml:"password"`
-	Project     string `yaml:"project"`
-	IssueType   string `yaml:"issueType"`
-	LastUpdated string `yaml:"lastUpdated"`
+	ConfigFile   string `yaml:"-"`
+	BaseURL      string `yaml:"baseURL"`
+	Username     string `yaml:"username"`
+	Password     string `yaml:"password"`
+	Project      string `yaml:"project"`
+	IssueType    string `yaml:"issueType"`
+	UpdatedSince string `yaml:"updatedSince"`
 }
 
 type userFlags struct {
@@ -41,7 +41,7 @@ func main() {
 	flag.StringVar(&flags.Username, "username", "", "Jira username")
 	flag.StringVar(&flags.Project, "project", "", "Jira project (comma-separated)")
 	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type (comma-separated)")
-	flag.StringVar(&flags.LastUpdated, "lastUpdated", "", "how many days have passed since the last update")
+	flag.StringVar(&flags.UpdatedSince, "updatedSince", "", "date range in which issues have been updated")
 
 	flag.Usage = func() {
 		fmt.Println(`jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]`)
@@ -75,7 +75,7 @@ func run(flags userFlags) error {
 
 	jql := fmt.Sprintf(
 		"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %s ORDER BY updated DESC",
-		flags.Options.Project, flags.Options.IssueType, assignee, flags.Options.LastUpdated,
+		flags.Options.Project, flags.Options.IssueType, assignee, flags.Options.UpdatedSince,
 	)
 	issues, err := reporter.GetIssues(jql)
 	if err != nil {
@@ -141,8 +141,8 @@ func fillOptionsByConfig(opts *Options) error {
 	if opts.IssueType == "" && configOpts.IssueType != "" {
 		opts.IssueType = configOpts.IssueType
 	}
-	if opts.LastUpdated == "" && configOpts.LastUpdated != "" {
-		opts.LastUpdated = configOpts.LastUpdated
+	if opts.UpdatedSince == "" && configOpts.UpdatedSince != "" {
+		opts.UpdatedSince = configOpts.UpdatedSince
 	}
 
 	return nil
