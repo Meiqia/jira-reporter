@@ -7,8 +7,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/abiosoft/ishell/v2"
@@ -20,18 +18,15 @@ const (
 	defaultConfigFile = "~/.jira-reporter/config.yaml"
 )
 
-var (
-	reRecentDays = regexp.MustCompile(`^-(\d+)d$`)
-)
-
 type Options struct {
-	ConfigFile   string `yaml:"-"`
-	BaseURL      string `yaml:"baseURL"`
-	Username     string `yaml:"username"`
-	Password     string `yaml:"password"`
-	Project      string `yaml:"project"`
-	IssueType    string `yaml:"issueType"`
-	UpdatedSince string `yaml:"updatedSince"`
+	ConfigFile     string `yaml:"-"`
+	BaseURL        string `yaml:"baseURL"`
+	Username       string `yaml:"username"`
+	Password       string `yaml:"password"`
+	Project        string `yaml:"project"`
+	IssueType      string `yaml:"issueType"`
+	UpdatedSince   string `yaml:"updatedSince"`
+	UpdatedBetween string `yaml:"updatedBetween"`
 }
 
 type userFlags struct {
@@ -47,7 +42,8 @@ func main() {
 	flag.StringVar(&flags.Username, "username", "", "Jira username")
 	flag.StringVar(&flags.Project, "project", "", "Jira project (comma-separated)")
 	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type (comma-separated)")
-	flag.StringVar(&flags.UpdatedSince, "updatedSince", "", "date range in which issues have been updated")
+	flag.StringVar(&flags.UpdatedSince, "updatedSince", "", `date after which issues have been updated, e.g. "-7d"`)
+	flag.StringVar(&flags.UpdatedBetween, "updatedBetween", "", "date range between which issues have been updated, e.g. \"2021-10-01~2021-10-10\" (precedes `updatedSince`)")
 
 	flag.Usage = func() {
 		fmt.Println(`jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]`)
@@ -66,36 +62,61 @@ func main() {
 
 func run(flags userFlags) error {
 	if len(flags.args) == 0 {
-		return errors.New("need assignee(s)")
+		return errors.New("require assignee(s)")
 	}
 	assignee := strings.Join(flags.args, ",")
 
-	if err := completeOptions(&flags.Options); err != nil {
+	opts := &flags.Options
+	if err := completeOptions(opts); err != nil {
 		return err
 	}
 
-	reporter, err := NewReporter(flags.Options.BaseURL, flags.Options.Username, flags.Options.Password)
+	reporter, err := NewReporter(opts.BaseURL, opts.Username, opts.Password)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	jql := fmt.Sprintf(
-		"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %s ORDER BY updated DESC",
-		flags.Options.Project, flags.Options.IssueType, assignee, flags.Options.UpdatedSince,
-	)
+	jql, err := buildJQL(opts, assignee)
+	if err != nil {
+		return err
+	}
+
 	issues, err := reporter.GetIssues(jql)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	report := reporter.GenReport(issues)
-	markdown, err := report.Markdown(getRecentDays(flags.Options.UpdatedSince))
+	markdown, err := report.Markdown(getDateRange(opts))
 	if err != nil {
-		panic(err)
+		return err
 	}
 	fmt.Println(markdown)
 
 	return nil
+}
+
+func buildJQL(opts *Options, assignee string) (jql string, err error) {
+	switch {
+	case opts.UpdatedBetween != "":
+		parts := strings.SplitN(opts.UpdatedBetween, "~", 2)
+		if len(parts) < 2 {
+			return "", fmt.Errorf("invalid `-updatedBetween`: %q", opts.UpdatedBetween)
+		}
+		min, max := parts[0], parts[1]
+		jql = fmt.Sprintf(
+			"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %s AND updatedDate <= %s ORDER BY updated DESC",
+			opts.Project, opts.IssueType, assignee, min, max,
+		)
+	case opts.UpdatedSince != "":
+		jql = fmt.Sprintf(
+			"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %s ORDER BY updated DESC",
+			opts.Project, opts.IssueType, assignee, opts.UpdatedSince,
+		)
+	default:
+		return "", errors.New("require `-updatedSince` or `-updatedBetween`")
+	}
+	return jql, nil
 }
 
 func completeOptions(opts *Options) (err error) {
@@ -154,6 +175,9 @@ func fillOptionsByConfig(opts *Options) error {
 	if opts.UpdatedSince == "" && configOpts.UpdatedSince != "" {
 		opts.UpdatedSince = configOpts.UpdatedSince
 	}
+	if opts.UpdatedBetween == "" && configOpts.UpdatedBetween != "" {
+		opts.UpdatedBetween = configOpts.UpdatedBetween
+	}
 
 	return nil
 }
@@ -182,17 +206,13 @@ func completeUsernameAndPassword(opts *Options) (err error) {
 	return nil
 }
 
-func getRecentDays(updatedSince string) int {
-	r := reRecentDays.FindStringSubmatch(updatedSince)
-	if len(r) != 2 {
-		panic(fmt.Errorf("invalid updatedSince: %q", updatedSince))
+func getDateRange(opts *Options) string {
+	switch {
+	case opts.UpdatedBetween != "":
+		return opts.UpdatedBetween
+	case opts.UpdatedSince != "":
+		return opts.UpdatedSince
+	default:
+		return ""
 	}
-	num := r[1]
-
-	recentDays, err := strconv.Atoi(num)
-	if err != nil {
-		panic(err)
-	}
-
-	return recentDays
 }

@@ -53,9 +53,9 @@ func (r Report) Add(username string, issue jira.Issue) {
 
 }
 
-func (r Report) Markdown(recentDays int) (string, error) {
+func (r Report) Markdown(dateRange string) (string, error) {
 	text := `
-# Jira 报告（最近 {{$.RecentDays}} 天更新过的任务）
+# Jira 报告（{{$.DateRange}} 更新过的任务）
 {{- range $username, $progress:= $.Report}}
 
 ## {{$username}}
@@ -81,11 +81,11 @@ func (r Report) Markdown(recentDays int) (string, error) {
 	}
 
 	data := struct {
-		RecentDays int
-		Report     Report
+		DateRange string
+		Report    Report
 	}{
-		RecentDays: recentDays,
-		Report:     r,
+		DateRange: dateRange,
+		Report:    r,
 	}
 
 	var buf bytes.Buffer
