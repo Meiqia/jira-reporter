@@ -16,8 +16,12 @@ $ jira-reporter -h
 jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]
   -baseURL string
         base URL of Jira server
+  -canceledStatus string
+        issue status categorized as Canceled (comma-separated)
   -config string
         config file in YAML (default "~/.jira-reporter/config.yaml")
+  -finishedStatus string
+        issue status categorized as Finished (comma-separated)
   -issueType string
         Jira issue type (comma-separated)
   -project string

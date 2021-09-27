@@ -25,6 +25,8 @@ type Options struct {
 	Password       string `yaml:"password"`
 	Project        string `yaml:"project"`
 	IssueType      string `yaml:"issueType"`
+	FinishedStatus string `yaml:"finishedStatus"`
+	CanceledStatus string `yaml:"canceledStatus"`
 	UpdatedSince   string `yaml:"updatedSince"`
 	UpdatedBetween string `yaml:"updatedBetween"`
 }
@@ -42,6 +44,8 @@ func main() {
 	flag.StringVar(&flags.Username, "username", "", "Jira username")
 	flag.StringVar(&flags.Project, "project", "", "Jira project (comma-separated)")
 	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type (comma-separated)")
+	flag.StringVar(&flags.FinishedStatus, "finishedStatus", "", "issue status categorized as Finished (comma-separated)")
+	flag.StringVar(&flags.CanceledStatus, "canceledStatus", "", "issue status categorized as Canceled (comma-separated)")
 	flag.StringVar(&flags.UpdatedSince, "updatedSince", "", `date after which issues have been updated, e.g. "-7d"`)
 	flag.StringVar(&flags.UpdatedBetween, "updatedBetween", "", "date range between which issues have been updated, e.g. \"2021-10-01~2021-10-10\" or \"2021-10-01 10:00 ~ 2021-10-10 10:00\" (precedes updatedSince)")
 
@@ -86,7 +90,7 @@ func run(flags userFlags) error {
 		return err
 	}
 
-	report := reporter.GenReport(issues)
+	report := reporter.GenReport(issues, NewStatus(opts.FinishedStatus, opts.CanceledStatus))
 	markdown, err := report.Markdown(getDateRange(opts))
 	if err != nil {
 		return err
@@ -171,6 +175,12 @@ func fillOptionsByConfig(opts *Options) error {
 	}
 	if opts.IssueType == "" && configOpts.IssueType != "" {
 		opts.IssueType = configOpts.IssueType
+	}
+	if opts.FinishedStatus == "" && configOpts.FinishedStatus != "" {
+		opts.FinishedStatus = configOpts.FinishedStatus
+	}
+	if opts.CanceledStatus == "" && configOpts.CanceledStatus != "" {
+		opts.CanceledStatus = configOpts.CanceledStatus
 	}
 	if opts.UpdatedSince == "" && configOpts.UpdatedSince != "" {
 		opts.UpdatedSince = configOpts.UpdatedSince
