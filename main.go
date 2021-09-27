@@ -43,7 +43,7 @@ func main() {
 	flag.StringVar(&flags.Project, "project", "", "Jira project (comma-separated)")
 	flag.StringVar(&flags.IssueType, "issueType", "", "Jira issue type (comma-separated)")
 	flag.StringVar(&flags.UpdatedSince, "updatedSince", "", `date after which issues have been updated, e.g. "-7d"`)
-	flag.StringVar(&flags.UpdatedBetween, "updatedBetween", "", "date range between which issues have been updated, e.g. \"2021-10-01~2021-10-10\" (precedes updatedSince)")
+	flag.StringVar(&flags.UpdatedBetween, "updatedBetween", "", "date range between which issues have been updated, e.g. \"2021-10-01~2021-10-10\" or \"2021-10-01 10:00 ~ 2021-10-10 10:00\" (precedes updatedSince)")
 
 	flag.Usage = func() {
 		fmt.Println(`jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]`)
@@ -103,14 +103,14 @@ func buildJQL(opts *Options, assignee string) (jql string, err error) {
 		if len(parts) < 2 {
 			return "", fmt.Errorf("invalid `-updatedBetween`: %q", opts.UpdatedBetween)
 		}
-		min, max := parts[0], parts[1]
+		min, max := strings.TrimSpace(parts[0]), strings.TrimSpace(parts[1])
 		jql = fmt.Sprintf(
-			"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %s AND updatedDate <= %s ORDER BY updated DESC",
+			"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %q AND updatedDate <= %q ORDER BY updated DESC",
 			opts.Project, opts.IssueType, assignee, min, max,
 		)
 	case opts.UpdatedSince != "":
 		jql = fmt.Sprintf(
-			"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %s ORDER BY updated DESC",
+			"project in (%s) AND issuetype in (%s) AND assignee in (%s) AND updatedDate >= %q ORDER BY updated DESC",
 			opts.Project, opts.IssueType, assignee, opts.UpdatedSince,
 		)
 	default:

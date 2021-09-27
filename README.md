@@ -23,7 +23,7 @@ jira-reporter [flags] assignee [assignee2 [assignee3 [...]]]
   -project string
         Jira project (comma-separated)
   -updatedBetween string
-        date range between which issues have been updated, e.g. "2021-10-01~2021-10-10" (precedes updatedSince)
+        date range between which issues have been updated, e.g. "2021-10-01~2021-10-10" or "2021-10-01 10:00 ~ 2021-10-10 10:00" (precedes updatedSince)
   -updatedSince string
         date after which issues have been updated, e.g. "-7d"
   -username string
